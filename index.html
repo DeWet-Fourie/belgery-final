@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BELGERY Collection | Handmade Leather Goods</title>
+  <meta name="description" content="BELGERY creates handmade leather bags, sleeves, belts and accessories with a focus on natural grain, everyday use and lasting character." />
+  <link rel="preconnect" href="https://docs.google.com" />
+  <link rel="preconnect" href="https://res.cloudinary.com" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="home">
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="BELGERY home">
+      <img src="https://res.cloudinary.com/dmac29ipj/image/upload/v1779132061/belgery_logo_nugqbd.png" alt="BELGERY Collection" />
+    </a>
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="collections.html">Collections</a>
+      <a href="products.html">Catalogue</a>
+      <a href="custom-orders.html">Custom Orders</a>
+    </nav>
+    <a class="header-cta liquid-btn" href="products.html">View pieces</a>
+  </header>
+
+  <main>
+    <section class="hero hero-home">
+      <div class="hero-shade"></div>
+      <div class="container hero-grid">
+        <div class="hero-copy reveal">
+          <p class="eyebrow">Handmade in small batches</p>
+          <h1>Leather goods made to be carried, used and remembered.</h1>
+          <p class="lead">BELGERY creates leather bags, sleeves, belts and accessories with natural grain, practical detail and a finish that gets better with use.</p>
+          <div class="actions">
+            <a class="liquid-btn" href="products.html">Explore catalogue</a>
+            <a class="liquid-btn ghost" href="custom-orders.html">Request custom work</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="value-bar container reveal">
+      <div><strong>Natural grain</strong><span>Every piece carries tone, marks and texture.</span></div>
+      <div><strong>Made by hand</strong><span>Cut, stitched and finished with practical care.</span></div>
+      <div><strong>Enquiry-first</strong><span>No heavy store system. Every item leads to WhatsApp.</span></div>
+    </section>
+
+    <section class="container section-head reveal">
+      <p class="eyebrow">From the catalogue</p>
+      <h2>Selected pieces from the latest BELGERY collection.</h2>
+      <p>These pieces are pulled straight from the product sheet. Add a new row, add your image links, set it to available, and the website creates the product automatically.</p>
+    </section>
+
+    <section class="container product-float-zone">
+      <div id="featuredProducts" class="product-grid" data-product-limit="6" data-featured-only="true"></div>
+      <div id="featuredEmpty" class="empty-state hidden">No featured pieces yet. In the Google Sheet, set <strong>featured</strong> to <strong>YES</strong>.</div>
+    </section>
+
+    <section class="heritage-band reveal">
+      <div class="container split-panel">
+        <div>
+          <p class="eyebrow">Collections</p>
+          <h2>Categories build themselves from your sheet.</h2>
+        </div>
+        <div>
+          <p>Every unique value in the <strong>collection</strong> column becomes a live collection category. Add “Bags”, “Belts”, “Wallets” or any new range and the filters update automatically.</p>
+          <a href="collections.html" class="text-link">View collections →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="container story-section reveal">
+      <div class="story-copy panel">
+        <p class="eyebrow">A legacy in every stitch</p>
+        <h2>Built for the kind of use that leaves a story behind.</h2>
+        <p>BELGERY pieces are not built to feel disposable. They are made for workdays, road trips, gifts, daily carry and quiet details that become more personal over time.</p>
+        <a class="liquid-btn" href="custom-orders.html">Start a custom order</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <img src="https://res.cloudinary.com/dmac29ipj/image/upload/v1779132061/belgery_logo_nugqbd.png" alt="BELGERY Collection" />
+    <p>BELGERY Collection · Est. 2024</p>
+    <a href="https://wa.me/27769925371">WhatsApp BELGERY</a>
+  </footer>
+
+  <dialog id="productModal" class="product-modal"></dialog>
+  <script src="script.js"></script>
+</body>
+</html>

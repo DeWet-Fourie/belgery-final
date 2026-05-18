@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BELGERY Collections</title>
+  <meta name="description" content="BELGERY collections generated from the Google Sheet collection column." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="collections">
+  <header class="site-header">
+    <a class="brand" href="index.html"><img src="https://res.cloudinary.com/dmac29ipj/image/upload/v1779132061/belgery_logo_nugqbd.png" alt="BELGERY Collection" /></a>
+    <nav class="nav"><a href="index.html">Home</a><a href="collections.html">Collections</a><a href="products.html">Catalogue</a><a href="custom-orders.html">Custom Orders</a></nav>
+    <a class="header-cta liquid-btn" href="products.html">View pieces</a>
+  </header>
+  <main>
+    <section class="sub-hero texture-hero">
+      <div class="container">
+        <p class="eyebrow">Automatically generated</p>
+        <h1>Collections shaped by the catalogue.</h1>
+        <p class="lead">Add a new collection name in the product sheet and it becomes part of this page.</p>
+      </div>
+    </section>
+    <section class="container collection-preview-zone">
+      <div id="collectionCards" class="collection-card-grid"></div>
+      <div id="collectionsEmpty" class="empty-state hidden">No collections yet. Add products with a value in the <strong>collection</strong> column.</div>
+    </section>
+  </main>
+  <footer class="site-footer"><img src="https://res.cloudinary.com/dmac29ipj/image/upload/v1779132061/belgery_logo_nugqbd.png" alt="BELGERY" /><p>BELGERY Collection · Est. 2024</p></footer>
+  <script src="script.js"></script>
+</body>
+</html>

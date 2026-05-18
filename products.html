@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BELGERY Catalogue | Handmade Leather Products</title>
+  <meta name="description" content="Browse the BELGERY product catalogue by collection." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="products">
+  <header class="site-header">
+    <a class="brand" href="index.html"><img src="https://res.cloudinary.com/dmac29ipj/image/upload/v1779132061/belgery_logo_nugqbd.png" alt="BELGERY Collection" /></a>
+    <nav class="nav"><a href="index.html">Home</a><a href="collections.html">Collections</a><a href="products.html">Catalogue</a><a href="custom-orders.html">Custom Orders</a></nav>
+    <a class="header-cta liquid-btn" href="custom-orders.html">Custom order</a>
+  </header>
+
+  <main>
+    <section class="sub-hero texture-hero">
+      <div class="container">
+        <p class="eyebrow">BELGERY catalogue</p>
+        <h1>Browse handmade leather pieces by collection.</h1>
+        <p class="lead">Every product below is created from a row in the Google Sheet. The website has no hard-coded products.</p>
+      </div>
+    </section>
+
+    <section class="container filters-wrap">
+      <div id="collectionFilters" class="collection-filters"></div>
+    </section>
+
+    <section class="container product-float-zone">
+      <div id="productsGrid" class="product-grid"></div>
+      <div id="productsEmpty" class="empty-state hidden">No products are visible yet. Add product rows to your Google Sheet and set <strong>available</strong> to <strong>YES</strong>.</div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><img src="https://res.cloudinary.com/dmac29ipj/image/upload/v1779132061/belgery_logo_nugqbd.png" alt="BELGERY" /><p>BELGERY Collection · Est. 2024</p></footer>
+  <dialog id="productModal" class="product-modal"></dialog>
+  <script src="script.js"></script>
+</body>
+</html>
