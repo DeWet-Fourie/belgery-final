@@ -1,13 +1,12 @@
-# BELGERY Ruark-inspired patch
+# BELGERY Sandstone / Espresso / Cognac Patch
 
-Replace your current repo files with these files:
-- index.html
-- products.html
-- collections.html
-- custom-orders.html
-- script.js
-- style.css
+Upload these files to your existing GitHub repo root.
 
-Products still come only from the published Google Sheet.
-Product images should be Cloudinary URLs in image1, image2, etc.
-Collections are generated automatically from the collection column.
+Changed:
+- Hero now uses `assets/backgrounds/hero-sandstone.png`.
+- Removed floating/pasted logo from hero.
+- Header logo enlarged.
+- Catalogue and collections are merged into `products.html`.
+- `collections.html` redirects to `products.html` for old links.
+- Colour direction changed to Sandstone + Espresso + Cognac.
+- Products still come only from the published Google Sheet.
