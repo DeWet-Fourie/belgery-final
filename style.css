@@ -348,3 +348,19 @@ body[data-page="products"] .eyebrow.centered{color:#ffd09c;text-shadow:0 10px 30
 @media(max-width:640px){
   .container{width:min(100% - 28px,1180px)}.hero-home{min-height:76vh;background-position:center 36%}.intro-panel{margin-top:-78px;padding:24px}.intro-panel h1{font-size:clamp(2.9rem,13vw,4.5rem)}.collection-card-grid,.product-grid,.steps-grid,.home-story-split{grid-template-columns:1fr}.collection-preview-zone{padding:48px 0 50px}.collection-card{min-height:305px}.section-head{padding:48px 0 20px}.product-float-zone{padding-bottom:52px}.section-head h2,.story-copy h2,.sub-hero h1{font-size:clamp(2.55rem,12vw,4.3rem)}.actions{flex-direction:column}.liquid-btn{width:100%}.modal-gallery img{height:52vh}.sub-hero,body[data-page="products"] .sub-hero,.custom-hero{padding:120px 0 50px}.closing-band{padding:56px 18px}
 }
+/* MOBILE COLLECTION BACKGROUND LOCK FIX */
+@media (max-width: 900px) {
+  body[data-page="products"]::before,
+  body[data-page="collections"]::before {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background-attachment: scroll !important;
+    background-position: center center !important;
+    background-size: cover !important;
+    background-repeat: no-repeat !important;
+    transform: translateZ(0) !important;
+    will-change: auto !important;
+  }
+}
