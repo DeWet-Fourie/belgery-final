@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BELGERY Collection | Curated Handmade Leather Goods</title>
+  <meta name="description" content="BELGERY creates handmade leather pieces with natural grain, practical detail and quieter luxury." />
+  <link rel="preconnect" href="https://docs.google.com" />
+  <link rel="preconnect" href="https://res.cloudinary.com" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="home">
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="BELGERY home">
+      <img src="https://res.cloudinary.com/dmac29ipj/image/upload/v1779132061/belgery_logo_nugqbd.png" alt="BELGERY Collection" />
+    </a>
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="products.html">Collections</a>
+      <a href="custom-orders.html">Custom Orders</a>
+    </nav>
+    <a class="header-cta" href="products.html">View rail</a>
+    <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <main>
+    <section class="hero hero-home" aria-label="BELGERY hero">
+      <div class="hero-bg-card"></div>
+    </section>
+
+    <section class="intro-panel container reveal">
+      <p class="eyebrow">Curated handmade leather goods</p>
+      <h1>A boutique showroom for pieces with character.</h1>
+      <p>Explore BELGERY through curated collections — each one with its own mood, texture and story before the pieces appear.</p>
+      <div class="actions">
+        <a class="liquid-btn" href="products.html">Explore collections</a>
+        <a class="liquid-btn ghost" href="custom-orders.html">Start a custom order</a>
+      </div>
+    </section>
+
+    <section class="container home-collection-teaser reveal">
+      <div class="rail-stage-head light-head">
+        <div>
+          <p class="eyebrow">The boutique rail</p>
+          <h2>Shop the story, not just the product.</h2>
+        </div>
+        <p>The products are grouped into collections. Select a range, read the short collection description, then view only the pieces inside that range.</p>
+      </div>
+      <div id="homeCollectionRail" class="mini-collection-rail"></div>
+      <a class="liquid-btn rail-link" href="products.html">Open the full collection rail</a>
+    </section>
+
+    <section class="home-story-split reveal">
+      <div class="story-copy">
+        <p class="eyebrow">A legacy in every stitch</p>
+        <h2>Designed for the way leather is actually used.</h2>
+        <p>BELGERY creates handmade bags, belts, sleeves and accessories around daily carry, work, travel and gifting. Each piece is made to hold its shape, show its grain and gain character over time.</p>
+        <a class="liquid-btn" href="custom-orders.html">Start a custom order</a>
+      </div>
+      <div class="story-image" aria-hidden="true"></div>
+    </section>
+
+    <section class="container section-head reveal">
+      <p class="eyebrow">Featured pieces</p>
+      <div class="section-row">
+        <h2>From the latest BELGERY collection.</h2>
+        <a href="products.html" class="text-link">View collections →</a>
+      </div>
+    </section>
+
+    <section class="container product-float-zone">
+      <div id="featuredProducts" class="product-grid" data-product-limit="6" data-featured-only="true"></div>
+      <div id="featuredEmpty" class="empty-state hidden">No featured pieces yet. In the Google Sheet, set <strong>featured</strong> to <strong>YES</strong>.</div>
+    </section>
+
+    <section class="closing-band reveal">
+      <p class="eyebrow">Made in small batches</p>
+      <h2>Practical pieces, quieter luxury, honest leather.</h2>
+      <a class="liquid-btn" href="products.html">Explore collections</a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div>
+      <img src="https://res.cloudinary.com/dmac29ipj/image/upload/v1779132061/belgery_logo_nugqbd.png" alt="BELGERY Collection" />
+      <p>BELGERY Collection · Boutique leather goods</p>
+    </div>
+    <nav>
+      <a href="products.html">Collections</a>
+      <a href="custom-orders.html">Custom Orders</a>
+      <a href="https://wa.me/27769925371">WhatsApp</a>
+    </nav>
+  </footer>
+
+  <dialog id="productModal" class="product-modal"></dialog>
+  <script src="script.js"></script>
+</body>
+</html>
