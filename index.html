@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BELGERY Collection | Boutique Collection Rail</title>
+  <meta name="description" content="Explore BELGERY through a one-page boutique rail: choose a collection, read the story, then shop the selected pieces." />
+  <link rel="preconnect" href="https://docs.google.com" />
+  <link rel="preconnect" href="https://res.cloudinary.com" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="products" class="one-page-site">
+  <header class="site-header onepage-header">
+    <a class="brand" href="#top" aria-label="BELGERY home">
+      <img src="https://res.cloudinary.com/dmac29ipj/image/upload/v1779132061/belgery_logo_nugqbd.png" alt="BELGERY Collection" />
+    </a>
+    <nav class="nav">
+      <a href="#collection-stage">Collections</a>
+      <a href="#catalogue-grid">Pieces</a>
+      <a href="#custom-orders">Custom Orders</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a class="header-cta" href="#collection-stage">Explore rail</a>
+    <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <main>
+
+  <section class="belgery-bag-intro" id="top" aria-label="BELGERY opening leather bags">
+    <div class="bag-intro-stage">
+      <div class="bag-intro-bg" aria-hidden="true"></div>
+      <div class="bag-intro-copy hero-logo-copy">
+        <h1 class="sr-only">BELGERY Collection leather goods</h1>
+        <div class="hero-logo-lockup" aria-hidden="true">
+          <img src="assets/brand/belgery-hero-logo.png" alt="" fetchpriority="high">
+        </div>
+        <div class="bag-intro-actions">
+          <a class="liquid-btn" href="#collection-stage">Open the rail</a>
+          <a class="liquid-btn ghost dark-ghost" href="https://wa.me/27769925371" target="_blank" rel="noopener">WhatsApp BELGERY</a>
+        </div>
+      </div>
+      <div class="opening-bag opening-bag-left" aria-hidden="true">
+        <span class="bag-hanger-line"></span>
+        <img src="assets/brand/belgery-opening-bag-left.png" alt="" fetchpriority="high">
+      </div>
+      <div class="opening-bag opening-bag-right" aria-hidden="true">
+        <span class="bag-hanger-line"></span>
+        <img src="assets/brand/belgery-opening-bag-right.png" alt="" fetchpriority="high">
+      </div>
+      <div class="bag-scroll-cue" aria-hidden="true">scroll to open</div>
+    </div>
+  </section>
+    <section id="collection-stage" class="container belgery-rail-stage home-first-rail reveal" aria-label="BELGERY collection rail">
+      <div class="rail-stage-head">
+        <div>
+          <p class="eyebrow">Shop by collection</p>
+          <h2>The Belgery Rail</h2>
+        </div>
+        <p>Scroll sideways. Tap a collection to reveal its short description and only the products inside that collection.</p>
+      </div>
+
+      <div id="collectionStatus" class="collection-status">Loading collections...</div>
+      <div class="collection-rail-static" aria-hidden="true"></div>
+      <div id="collectionRail" class="collection-rail" aria-live="polite"></div>
+      <div class="rail-controls collection-rail-controls">
+        <div class="rail-note">Pull the rail sideways</div>
+        <div class="rail-buttons">
+          <button class="rail-button" type="button" data-rail-prev aria-label="Previous collections">←</button>
+          <button class="rail-button" type="button" data-rail-next aria-label="Next collections">→</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="container selected-collection-wrap onepage-story-wrap">
+      <article id="collectionStory" class="collection-story-panel">
+        <p class="eyebrow">Select a collection</p>
+        <h2>Every range gets its own introduction.</h2>
+        <p>Once a collection is selected, its description appears here before the products load below.</p>
+      </article>
+    </section>
+
+    <section class="container product-float-zone catalogue-zone" id="catalogue-grid">
+      <div class="catalogue-heading">
+        <div>
+          <p class="eyebrow">Selected pieces</p>
+          <h2 id="productsTitle">Products will appear here.</h2>
+        </div>
+        <a id="activeCollectionWhatsapp" class="small-btn gold" href="https://wa.me/27769925371" target="_blank" rel="noopener">Ask about this collection</a>
+      </div>
+      <div id="productsGrid" class="product-grid collection-products-grid"></div>
+      <div id="productsEmpty" class="empty-state hidden">No products are visible yet. Add product rows to your Google Sheet and set <strong>available</strong> to <strong>YES</strong>.</div>
+    </section>
+
+    <section id="custom-orders" class="container onepage-custom-panel reveal">
+      <div>
+        <p class="eyebrow">Custom orders</p>
+        <h2>Need a piece made around a specific idea?</h2>
+      </div>
+      <div class="custom-copy">
+        <p>BELGERY can handle custom requests, gifts, sizing notes and special leather pieces through WhatsApp. Send the idea, preferred style, colour direction and any reference images.</p>
+        <a class="liquid-btn" href="https://wa.me/27769925371?text=Hi%20BELGERY%2C%20I%20would%20like%20to%20start%20a%20custom%20order." target="_blank" rel="noopener">Start a custom order</a>
+      </div>
+    </section>
+
+    <section id="contact" class="onepage-closing reveal">
+      <div class="container onepage-closing-inner">
+        <p class="eyebrow">Small batch boutique pieces</p>
+        <h2>Curated leather goods with natural texture, practical detail and quieter luxury.</h2>
+        <div class="actions centered-actions">
+          <a class="liquid-btn" href="#collection-stage">Back to the rail</a>
+          <a class="liquid-btn ghost dark-ghost" href="https://wa.me/27769925371" target="_blank" rel="noopener">WhatsApp BELGERY</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer onepage-footer">
+    <div>
+      <img src="https://res.cloudinary.com/dmac29ipj/image/upload/v1779132061/belgery_logo_nugqbd.png" alt="BELGERY Collection" />
+      <p>BELGERY Collection · Boutique leather goods</p>
+    </div>
+    <nav>
+      <a href="#collection-stage">Collections</a>
+      <a href="#custom-orders">Custom Orders</a>
+      <a href="https://wa.me/27769925371">WhatsApp</a>
+    </nav>
+  </footer>
+
+  <dialog id="productModal" class="product-modal"></dialog>
+  <script src="script.js"></script>
+</body>
+</html>
