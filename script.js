@@ -1,0 +1,635 @@
+/* =========================================================
+   BELGERY COLLECTION RAIL ENGINE
+   Baadjie-inspired rail, rebuilt for Belgery collections.
+   Flow: collection rail -> collection story -> collection products.
+   ========================================================= */
+
+const CONFIG = {
+  productsCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTQOWR3E1sjd7wLZDDx66hSNLB3C_bCQfJZwaCSmRNvStwGasp6Yx1ICc3mP5-z_24RmCVOm8JdKHnz/pub?gid=0&single=true&output=csv",
+  whatsappNumber: "27769925371",
+  localProductImageFolder: "assets/products/",
+  placeholderImage: "assets/products/placeholder.svg"
+};
+
+let allProducts = [];
+let collections = [];
+let activeCollection = "";
+let railDidDrag = false;
+
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+
+function clean(value) {
+  return String(value ?? "").trim();
+}
+
+function normaliseKey(key) {
+  return clean(key)
+    .toLowerCase()
+    .replace(/^\uFEFF/, "")
+    .replace(/\s+/g, "")
+    .replace(/[_-]+/g, "")
+    .replace(/[^\w]/g, "");
+}
+
+function yes(value) {
+  return ["YES", "TRUE", "1", "Y", "FEATURED"].includes(clean(value).toUpperCase());
+}
+
+function no(value) {
+  return ["NO", "FALSE", "0", "N", "HIDDEN", "UNAVAILABLE", "SOLD"].includes(clean(value).toUpperCase());
+}
+
+function firstValue(row, keys, fallback = "") {
+  for (const key of keys) {
+    const value = row[normaliseKey(key)];
+    if (clean(value)) return clean(value);
+  }
+  return fallback;
+}
+
+function sheetUrlWithCacheBust() {
+  const separator = CONFIG.productsCsvUrl.includes("?") ? "&" : "?";
+  return `${CONFIG.productsCsvUrl}${separator}cacheBust=${Date.now()}`;
+}
+
+async function fetchProducts() {
+  const response = await fetch(sheetUrlWithCacheBust(), { cache: "no-store" });
+  if (!response.ok) throw new Error(`Google Sheet fetch failed: ${response.status}`);
+
+  const text = await response.text();
+  const rows = parseCSV(text);
+
+  return rows
+    .map((row, index) => mapSheetRowToProduct(row, index))
+    .filter(product => clean(product.name))
+    .filter(product => !no(product.available))
+    .sort((a, b) => Number(clean(a.sortOrder) || 9999) - Number(clean(b.sortOrder) || 9999));
+}
+
+function parseCSV(text) {
+  const trimmed = clean(text);
+  if (!trimmed) return [];
+
+  const rows = csvToRows(trimmed);
+  if (!rows.length) return [];
+
+  const headers = rows.shift().map(header => normaliseKey(header));
+
+  return rows
+    .filter(row => row.some(cell => clean(cell)))
+    .map(row => {
+      const item = {};
+      headers.forEach((header, index) => {
+        if (header) item[header] = clean(row[index]);
+      });
+      return item;
+    });
+}
+
+function csvToRows(csvText) {
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < csvText.length; i++) {
+    const char = csvText[i];
+    const next = csvText[i + 1];
+
+    if (char === '"' && inQuotes && next === '"') {
+      cell += '"';
+      i++;
+    } else if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === "," && !inQuotes) {
+      row.push(cell);
+      cell = "";
+    } else if ((char === "\n" || char === "\r") && !inQuotes) {
+      if (char === "\r" && next === "\n") i++;
+      row.push(cell);
+      rows.push(row);
+      row = [];
+      cell = "";
+    } else {
+      cell += char;
+    }
+  }
+
+  row.push(cell);
+  rows.push(row);
+  return rows;
+}
+
+function mapSheetRowToProduct(row, index) {
+  const name = firstValue(row, ["name", "productName", "product", "title"]);
+  const id = firstValue(row, ["id", "productId", "sku", "slug"]) || slugify(name) || `product-${index + 1}`;
+  const collection = firstValue(row, ["collection", "category", "range", "type"], "BELGERY Edit");
+
+  return {
+    id,
+    name,
+    collection,
+    collectionTagline: firstValue(row, ["collectionTagline", "rangeTagline", "collectionSubtitle", "collectionMood", "tagline"]),
+    collectionDescription: firstValue(row, ["collectionDescription", "collectionDesc", "rangeDescription", "rangeStory", "collectionStory"]),
+    collectionCover: firstValue(row, ["collectionCover", "collectionImage", "rangeCover", "categoryImage", "coverImage"]),
+    price: firstValue(row, ["price", "normalPrice", "regularPrice", "sellingPrice"]),
+    salePrice: firstValue(row, ["salePrice", "discountPrice", "specialPrice"]),
+    compareAtPrice: firstValue(row, ["compareAtPrice", "comparePrice", "oldPrice", "wasPrice", "originalPrice", "previousPrice"]),
+    shortDescription: firstValue(row, ["shortDescription", "shortDesc", "cardDescription", "summary", "descriptionShort"]),
+    description: firstValue(row, ["description", "productDescription", "mainDescription"]),
+    longDescription: firstValue(row, ["longDescription", "longDesc", "fullDescription", "details", "story"]),
+    material: firstValue(row, ["material", "materials", "leather", "fabric"]),
+    dimensions: firstValue(row, ["dimensions", "dimension", "size", "measurements"]),
+    leadTime: firstValue(row, ["leadTime", "leadtime", "productionTime", "deliveryTime", "turnaround"]),
+    available: firstValue(row, ["available", "availability", "status"], "YES"),
+    featured: firstValue(row, ["featured", "feature", "homepage", "home"]),
+    sortOrder: firstValue(row, ["sortOrder", "sort", "order", "displayOrder"]),
+    whatsappMessage: firstValue(row, ["whatsappMessage", "whatsapp", "enquiryMessage", "message"]),
+    images: getImagesFromRow(row)
+  };
+}
+
+function getImagesFromRow(row) {
+  const images = [];
+
+  const mainImage = firstValue(row, ["image", "mainImage", "productImage", "photo", "picture"]);
+  if (mainImage) images.push(mainImage);
+
+  for (let i = 1; i <= 12; i++) {
+    const value = firstValue(row, [`image${i}`, `img${i}`, `photo${i}`, `picture${i}`]);
+    if (value) images.push(value);
+  }
+
+  const gallery = firstValue(row, ["gallery", "images", "imageGallery", "photos", "photoGallery"]);
+  if (gallery) {
+    gallery
+      .split(/[|;]/)
+      .map(clean)
+      .filter(Boolean)
+      .forEach(image => images.push(image));
+  }
+
+  return [...new Set(images)].map(resolveImage);
+}
+
+function resolveImage(src) {
+  const value = clean(src);
+  if (!value) return CONFIG.placeholderImage;
+
+  if (/^(https?:)?\/\//i.test(value) || value.startsWith("data:")) return value;
+  if (value.startsWith("assets/") || value.startsWith("./") || value.startsWith("/")) return value;
+
+  return `${CONFIG.localProductImageFolder}${value}`;
+}
+
+function buildCollections(products) {
+  const map = new Map();
+
+  products.forEach(product => {
+    const name = clean(product.collection) || "BELGERY Edit";
+    if (!map.has(name)) {
+      map.set(name, {
+        name,
+        slug: slugify(name),
+        tagline: "Curated BELGERY pieces",
+        description: "A curated selection of handmade BELGERY pieces chosen for natural texture, practical detail and quieter luxury.",
+        cover: product.images?.[0] || CONFIG.placeholderImage,
+        products: []
+      });
+    }
+
+    const collection = map.get(name);
+    collection.products.push(product);
+
+    if (clean(product.collectionTagline)) collection.tagline = clean(product.collectionTagline);
+    if (clean(product.collectionDescription)) collection.description = clean(product.collectionDescription);
+    if (clean(product.collectionCover)) collection.cover = resolveImage(product.collectionCover);
+    else if (!collection.cover || collection.cover === CONFIG.placeholderImage) collection.cover = product.images?.[0] || CONFIG.placeholderImage;
+  });
+
+  return Array.from(map.values()).map(collection => ({
+    ...collection,
+    description: smartCollectionDescription(collection)
+  }));
+}
+
+function smartCollectionDescription(collection) {
+  if (collection.description && !collection.description.includes("curated selection of handmade")) return collection.description;
+
+  const name = collection.name.toLowerCase();
+  if (name.includes("bag")) return "Structured carry pieces with honest leather grain, built for daily use, work days and travel without losing the handmade character that makes every piece feel personal.";
+  if (name.includes("belt")) return "Clean leather staples selected for shape, strength and everyday wear — simple enough to use daily, refined enough to finish the outfit.";
+  if (name.includes("wallet") || name.includes("card")) return "Small leather goods made for pockets, gifting and daily carry, with compact details that age beautifully through use.";
+  if (name.includes("custom")) return "A more personal BELGERY range shaped around the customer — made for meaningful gifts, specific sizing and pieces with a story behind them.";
+  if (name.includes("new")) return "Freshly added BELGERY pieces from the latest selection. Limited, practical and available while the current batch lasts.";
+  if (name.includes("signature")) return "The core BELGERY look: natural texture, clean silhouettes and handmade detail balanced into pieces that feel timeless rather than trendy.";
+  return collection.description;
+}
+
+function collectionRailCard(collection, index) {
+  return `
+    <button class="collection-rail-card ${collection.name === activeCollection ? "is-active" : ""}" type="button" data-collection="${escapeAttr(collection.name)}" style="--delay:${index * 40}ms">
+      <div class="rail-wire-hanger" aria-hidden="true">
+        <span class="rail-loop"></span>
+        <span class="rail-wire"></span>
+      </div>
+      <span class="collection-count">${collection.products.length} piece${collection.products.length === 1 ? "" : "s"}</span>
+      <img src="${escapeAttr(collection.cover)}" alt="${escapeAttr(collection.name)} collection" loading="lazy" onerror="this.src='${CONFIG.placeholderImage}'">
+      <span class="collection-rail-copy">
+        <small>${escapeHTML(collection.tagline)}</small>
+        <strong>${escapeHTML(collection.name)}</strong>
+        <em>Open collection</em>
+      </span>
+    </button>
+  `;
+}
+
+function renderMainCollectionRail() {
+  const rail = $("#collectionRail");
+  if (!rail) return;
+
+  if (!collections.length) {
+    rail.innerHTML = "";
+    const status = $("#collectionStatus");
+    if (status) status.textContent = "No collections found yet.";
+    return;
+  }
+
+  if (!activeCollection) activeCollection = collections[0].name;
+
+  rail.innerHTML = collections.map(collectionRailCard).join("");
+  const status = $("#collectionStatus");
+  if (status) status.textContent = `${collections.length} collection${collections.length === 1 ? "" : "s"} loaded`;
+
+  rail.querySelectorAll("[data-collection]").forEach(button => {
+    button.addEventListener("click", () => {
+      if (railDidDrag) return;
+      selectCollection(button.dataset.collection, { scroll: true, updateHash: true });
+    });
+  });
+
+  setupHorizontalRail(rail);
+  bindRailButtons(rail);
+}
+
+function renderHomeCollectionRail() {
+  const rail = $("#homeCollectionRail");
+  if (!rail) return;
+
+  if (!collections.length) {
+    rail.innerHTML = `<div class="empty-state">Collections will appear here once products load from the Google Sheet.</div>`;
+    return;
+  }
+
+  rail.innerHTML = collections.slice(0, 5).map(collection => `
+    <a class="mini-collection-card" href="products.html#${encodeURIComponent(collection.name)}">
+      <img src="${escapeAttr(collection.cover)}" alt="${escapeAttr(collection.name)}" loading="lazy" onerror="this.src='${CONFIG.placeholderImage}'">
+      <span>${escapeHTML(collection.name)}</span>
+    </a>
+  `).join("");
+}
+
+function selectCollection(name, options = {}) {
+  activeCollection = name;
+  const collection = collections.find(item => item.name === name) || collections[0];
+  if (!collection) return;
+
+  $$("#collectionRail .collection-rail-card").forEach(card => {
+    card.classList.toggle("is-active", card.dataset.collection === collection.name);
+  });
+
+  renderCollectionStory(collection);
+  renderGrid("#productsGrid", collection.products, { emptySelector: "#productsEmpty" });
+
+  const title = $("#productsTitle");
+  if (title) title.textContent = `${collection.name} products`;
+
+  const whatsapp = $("#activeCollectionWhatsapp");
+  if (whatsapp) {
+    whatsapp.href = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(`Hi BELGERY, I would like to ask about the ${collection.name} collection.`)}`;
+  }
+
+  if (options.updateHash !== false) {
+    history.replaceState(null, "", `#${encodeURIComponent(collection.name)}`);
+  }
+
+  if (options.scroll) {
+    $("#collectionStory")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+function renderCollectionStory(collection) {
+  const story = $("#collectionStory");
+  if (!story) return;
+
+  story.innerHTML = `
+    <div class="story-index">${String(collections.indexOf(collection) + 1).padStart(2, "0")}</div>
+    <div class="story-main">
+      <p class="eyebrow">${escapeHTML(collection.tagline)}</p>
+      <h2>${escapeHTML(collection.name)}</h2>
+      <p>${escapeHTML(collection.description)}</p>
+      <div class="story-meta-row">
+        <span>${collection.products.length} available piece${collection.products.length === 1 ? "" : "s"}</span>
+        <span>Curated collection</span>
+        <span>WhatsApp to claim</span>
+      </div>
+    </div>
+    <div class="story-cover">
+      <img src="${escapeAttr(collection.cover)}" alt="${escapeAttr(collection.name)}" onerror="this.src='${CONFIG.placeholderImage}'">
+    </div>
+  `;
+}
+
+function setupHorizontalRail(rail) {
+  if (!rail || rail.dataset.dragReady === "true") return;
+  rail.dataset.dragReady = "true";
+
+  let pointerDown = false;
+  let startX = 0;
+  let startY = 0;
+  let startLeft = 0;
+  let moved = false;
+
+  rail.addEventListener("pointerdown", event => {
+    pointerDown = true;
+    moved = false;
+    railDidDrag = false;
+    startX = event.clientX;
+    startY = event.clientY;
+    startLeft = rail.scrollLeft;
+  });
+
+  rail.addEventListener("pointermove", event => {
+    if (!pointerDown) return;
+
+    const dx = event.clientX - startX;
+    const dy = event.clientY - startY;
+
+    if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) {
+      moved = true;
+      railDidDrag = true;
+      rail.scrollLeft = startLeft - dx;
+      event.preventDefault();
+    }
+  });
+
+  const stopDrag = () => {
+    pointerDown = false;
+    if (moved) setTimeout(() => { railDidDrag = false; }, 180);
+    else railDidDrag = false;
+    moved = false;
+  };
+
+  rail.addEventListener("pointerup", stopDrag);
+  rail.addEventListener("pointercancel", stopDrag);
+  rail.addEventListener("pointerleave", () => { pointerDown = false; });
+}
+
+function bindRailButtons(rail) {
+  const prev = $("[data-rail-prev]");
+  const next = $("[data-rail-next]");
+  if (!rail || !prev || !next || prev.dataset.bound === "true") return;
+
+  prev.dataset.bound = "true";
+  next.dataset.bound = "true";
+
+  const cardStep = () => {
+    const card = rail.querySelector(".collection-rail-card");
+    return card ? card.getBoundingClientRect().width + 24 : 320;
+  };
+
+  prev.addEventListener("click", () => rail.scrollBy({ left: -cardStep(), behavior: "smooth" }));
+  next.addEventListener("click", () => rail.scrollBy({ left: cardStep(), behavior: "smooth" }));
+}
+
+function productCard(product) {
+  const mainImage = product.images?.[0] || CONFIG.placeholderImage;
+
+  return `
+    <article class="product-card" data-id="${escapeAttr(product.id)}" data-collection="${escapeAttr(product.collection)}">
+      <button class="product-image" type="button" data-open-product="${escapeAttr(product.id)}" aria-label="Open ${escapeAttr(product.name)} gallery">
+        <img src="${escapeAttr(mainImage)}" alt="${escapeAttr(product.name)}" loading="lazy" onerror="this.src='${CONFIG.placeholderImage}'">
+      </button>
+
+      <div class="product-info">
+        <div class="product-kicker"><span>${escapeHTML(product.collection)}</span></div>
+        <h3>${escapeHTML(product.name)}</h3>
+        ${priceHTML(product)}
+        <div class="product-actions">
+          <button class="small-btn" type="button" data-open-product="${escapeAttr(product.id)}">View piece</button>
+          <a class="small-btn gold" href="${whatsappLink(product)}" target="_blank" rel="noopener">Enquire</a>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function priceHTML(product) {
+  const hasSale = clean(product.salePrice) && clean(product.compareAtPrice);
+
+  if (hasSale) {
+    return `
+      <div class="price-row">
+        <span class="price-current">${escapeHTML(product.salePrice)}</span>
+        <span class="price-old">${escapeHTML(product.compareAtPrice)}</span>
+      </div>
+      <span class="sale-badge">Limited offer</span>
+    `;
+  }
+
+  return `
+    <div class="price-row">
+      <span class="price-current">${escapeHTML(clean(product.price) || "Price on request")}</span>
+    </div>
+  `;
+}
+
+function renderGrid(selector, products, options = {}) {
+  const grid = $(selector);
+  if (!grid) return;
+
+  let items = [...products];
+
+  if (options.featuredOnly) items = items.filter(product => yes(product.featured));
+  if (options.limit) items = items.slice(0, options.limit);
+
+  grid.innerHTML = items.map(productCard).join("");
+
+  const empty = $(options.emptySelector);
+  if (empty) empty.classList.toggle("hidden", items.length > 0);
+
+  bindProductButtons();
+}
+
+function bindProductButtons() {
+  $$('[data-open-product]').forEach(button => {
+    if (button.dataset.bound === "true") return;
+    button.dataset.bound = "true";
+    button.addEventListener("click", () => openProduct(button.dataset.openProduct));
+  });
+}
+
+function openProduct(id) {
+  const product = allProducts.find(item => clean(item.id) === clean(id));
+  const modal = $("#productModal");
+  if (!product || !modal) return;
+
+  const galleryImages = product.images?.length ? product.images : [CONFIG.placeholderImage];
+  const productDescription =
+    clean(product.longDescription) ||
+    clean(product.description) ||
+    clean(product.shortDescription) ||
+    "Contact BELGERY for more details about this piece.";
+
+  modal.innerHTML = `
+    <div class="modal-inner">
+      <button class="small-btn close-btn" type="button" onclick="document.getElementById('productModal').close()">Close</button>
+      <div class="modal-gallery" aria-label="${escapeAttr(product.name)} image gallery">
+        ${galleryImages.map(img => `
+          <img src="${escapeAttr(img)}" alt="${escapeAttr(product.name)}" onerror="this.src='${CONFIG.placeholderImage}'">
+        `).join("")}
+      </div>
+      <div class="modal-copy">
+        <p class="eyebrow">${escapeHTML(product.collection || "BELGERY")}</p>
+        <h2>${escapeHTML(product.name)}</h2>
+        ${priceHTML(product)}
+        <p class="modal-description">${escapeHTML(productDescription)}</p>
+        ${additionalInformationHTML(product)}
+        <a class="liquid-btn" target="_blank" rel="noopener" href="${whatsappLink(product)}">Enquire on WhatsApp</a>
+      </div>
+    </div>
+  `;
+
+  modal.showModal();
+}
+
+function additionalInformationHTML(product) {
+  const details = [
+    ["Material", product.material],
+    ["Dimensions / Size", product.dimensions],
+    ["Lead time", product.leadTime]
+  ].filter(([, value]) => clean(value));
+
+  if (!details.length) return "";
+
+  return `
+    <div class="modal-section additional-information">
+      <h3>Additional information</h3>
+      <dl class="product-detail-list clean-details">
+        ${details.map(([label, value]) => `
+          <div><dt>${escapeHTML(label)}</dt><dd>${escapeHTML(value)}</dd></div>
+        `).join("")}
+      </dl>
+    </div>
+  `;
+}
+
+function whatsappLink(product) {
+  const msg = clean(product.whatsappMessage) || `Hi BELGERY, I am interested in ${product.name}. Could you please send me more details?`;
+  return `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`;
+}
+
+function escapeHTML(str) {
+  return clean(str).replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  }[char]));
+}
+
+function escapeAttr(str) {
+  return escapeHTML(str);
+}
+
+function slugify(str) {
+  return clean(str).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+
+function showSheetError(error) {
+  console.error(error);
+  const message = `
+    <div class="sheet-error">
+      <strong>Google Sheet did not load.</strong><br>
+      Check that the published CSV link is correct, public and not blocked.
+    </div>
+  `;
+
+  ["#featuredProducts", "#productsGrid", "#collectionRail", "#homeCollectionRail"]
+    .map($)
+    .filter(Boolean)
+    .forEach(target => target.innerHTML = message);
+
+  const status = $("#collectionStatus");
+  if (status) status.textContent = "Could not load the collection rail.";
+}
+
+function initHashCollection() {
+  const hashCollection = decodeURIComponent(location.hash.replace("#", ""));
+  if (!hashCollection) return collections[0]?.name || "";
+  const match = collections.find(collection => collection.name.toLowerCase() === hashCollection.toLowerCase());
+  return match?.name || collections[0]?.name || "";
+}
+
+function restoreAnchorAfterLoad() {
+  const hash = decodeURIComponent(location.hash.replace("#", ""));
+  if (!hash) return;
+  const isCollectionHash = collections.some(collection => collection.name.toLowerCase() === hash.toLowerCase());
+  if (isCollectionHash) return;
+
+  const target = document.getElementById(hash);
+  if (target) {
+    setTimeout(() => target.scrollIntoView({ behavior: "smooth", block: "start" }), 180);
+  }
+}
+
+async function init() {
+  try {
+    allProducts = await fetchProducts();
+    collections = buildCollections(allProducts);
+    activeCollection = initHashCollection();
+
+    renderHomeCollectionRail();
+    renderMainCollectionRail();
+
+    if ($("#collectionStory")) selectCollection(activeCollection || collections[0]?.name || "", { updateHash: false });
+    restoreAnchorAfterLoad();
+
+    renderGrid("#featuredProducts", allProducts, {
+      featuredOnly: true,
+      limit: Number($("#featuredProducts")?.dataset.productLimit || 6),
+      emptySelector: "#featuredEmpty"
+    });
+  } catch (error) {
+    showSheetError(error);
+  }
+}
+
+document.addEventListener("click", event => {
+  const toggle = event.target.closest(".menu-toggle");
+  if (toggle) {
+    const isOpen = document.body.classList.toggle("menu-open");
+    toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  }
+
+  const navLink = event.target.closest(".nav a");
+  if (navLink) {
+    document.body.classList.remove("menu-open");
+    const toggleButton = $(".menu-toggle");
+    if (toggleButton) toggleButton.setAttribute("aria-expanded", "false");
+  }
+
+  if (event.target.matches(".product-modal")) event.target.close();
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") {
+    const modal = $("#productModal");
+    if (modal?.open) modal.close();
+    document.body.classList.remove("menu-open");
+  }
+});
+
+document.addEventListener("DOMContentLoaded", init);
