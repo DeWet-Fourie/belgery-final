@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1400">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#15120f"/><stop offset="1" stop-color="#2a1b12"/></linearGradient></defs>
+<rect width="1200" height="1400" fill="url(#g)"/>
+<path d="M220 1010h760V470H220v540Zm90-450h580v360H310V560Z" fill="#d3a460" opacity=".25"/>
+<text x="600" y="735" text-anchor="middle" font-family="Georgia,serif" font-size="72" fill="#f3eadc" opacity=".62">BELGERY</text>
+<text x="600" y="810" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" fill="#d3a460" letter-spacing="8">IMAGE COMING SOON</text>
+</svg>
